@@ -1,0 +1,318 @@
+	package practice;
+	
+	import java.io.File;
+import java.util.ArrayList;
+	import java.util.Arrays;
+	import java.util.Scanner;
+	
+	public class prac {
+		public static void main(String[] args) throws Exception 
+		{
+	int node=500;
+	float[] cLink=new float[node+1];//to store no. of links in each community
+	float[] prevLink=new float[node+1];		
+	 /*Integer ar[]=new Integer[6];
+			 List<Integer> al = new ArrayList<Integer>(); 
+		        al.add(10); 
+		        al.add(20); 
+		        al.add(30); 
+		        al.add(40); 
+		        ar=al.toArray(ar);*/
+		//Scanner sc = new Scanner(System.in);
+			/*int data[][] = {{1,2,20},{2,1,20},{3,1,50},{2,3,40},{3,2,40},
+				{1,3,50},{3,4,30},{4,3,30},{4,6,40},{6,4,40},{4,5,30},{5,4,30},{5,6,20},{6,5,20}};
+			*/int flight[][]=new int[node+1][node+1];
+			/*flight[1][2]=20;
+			flight[2][1]=20;
+			flight[3][1]=50;
+			flight[1][3]=50;
+			flight[1][3]=50;
+			flight[2][3]=40;
+			flight[3][2]=40;
+			flight[3][4]=30;
+			flight[4][3]=30;
+			flight[4][6]=40;
+			flight[6][4]=40;
+			flight[4][5]=30;
+			flight[5][4]=30;
+			flight[5][6]=20;
+			flight[6][5]=20;*/
+			// pass the path to the file as a parameter 
+		    File file = 
+		      new File("/home/meraj/Desktop/flight.txt"); 
+		    Scanner sc = new Scanner(file); 
+		    
+		    // we just need to use \\Z as delimiter 
+		    sc.useDelimiter(" |\n"); 
+		    int data_entry=0;
+		    while (sc.hasNextInt()) {
+		    	int u=Integer.parseInt(sc.next());
+		    	int v=Integer.parseInt(sc.next());
+		    	int data=Integer.parseInt(sc.next());
+		    	flight[u][v]=data;
+		    	//System.out.println(flight[u][v]+" ar");
+		    	data_entry++;
+		    }
+			float Link=data_entry/2;//half of total data entry
+			//Fining degree of each node
+			float[] deg=new float[node+1];
+			for(int i=0;i<node+1;i++)
+			{
+				for(int j=0;j<node+1;j++)
+				{
+					if(flight[i][j]!=0)
+						deg[i]++;
+				}
+				//System.out.println("Degree of node "+i+" is "+deg[i]);
+			}
+			//finding the max weighted edge
+		int max=0;
+		int max2=0;
+		int u=0,v=0;
+		int newnode=0;
+		/*for(int i=0;i<flight.length;i++)
+		{
+			for(int j=0;j<flight.length;j++)
+			{
+				if(max<flight[i][j])
+				{
+					max=flight[i][j];
+					u=i;
+					v=j;
+				}
+				
+			
+			}
+		}
+		//Storing the max weighted nodes
+		 ArrayList<Integer> c1 = new ArrayList<Integer>(node+1);
+		 c1.add(u);
+		 c1.add(v);*/
+		 
+		// System.out.println("Maximum weight is "+max+" of edge "+u+"-"+v);
+		 int [][] c=new int[node+1][node+1];//for temp community
+		 int [][] prevc=new int[node+1][node+1];
+		 //c[500][0]=1;
+		 
+		// cLink[0]=1;
+		 
+		//for finding degree of each community
+		 float mod=0;
+		 float prevmod;
+		 int f=1;//to distinguish 1st run with others
+		 ArrayList<Integer> c1 = new ArrayList<Integer>(node+1);
+		 do {
+			 int n=0;//for counting no. of community created
+			 float cDeg[]=new float[node];
+			 prevmod=mod;
+			 mod=0;
+			 max2=0;
+			 for(int i=0;i<cLink.length;i++) {
+			 prevLink[i]=cLink[i];
+			 cLink[i]=0;
+			 for(int j=0;j<node+1;j++)
+			 	{
+				 prevc[i][j]=c[i][j];
+				 if(i!=0)c[i][j]=0;
+			 	}
+			 }
+			 
+			 
+			 if(f==1) {
+				 f=0;
+			 for(int i=0;i<flight.length;i++)
+				{
+					for(int j=0;j<flight.length;j++)
+					{
+						if(max<flight[i][j])
+						{
+							max=flight[i][j];
+							u=i;
+							v=j;
+						}
+						
+					
+					}
+				}
+			 System.out.println(max+" max "+u+" u "+v+" v");
+				//Storing the max weighted nodes
+				 
+				 c1.add(u);
+				 c1.add(v);
+				 c[0][0]=u;
+				 c[0][1]=v;
+				// cLink[0]=1;
+			 n=1;
+			 }
+			 else
+			 {
+				 for(int i=0;i<=node;i++)
+				 {
+					 if(c[0][i]==0)break;
+					 for(int j=0;j<=node;j++)
+					 {
+						 if(!c1.contains(j)) {
+						 
+						 if(flight[c[0][i]][j]!=0)
+						 {
+							 if(max2<flight[c[0][i]][j])
+							 {
+								 max2=flight[c[0][i]][j];
+								 newnode=j;
+							 }
+						 }
+						 			
+					 }
+					 }
+				 }
+				 //System.out.println(newnode+" newnode");
+				 for(int i=0;i<=node;i++)
+				 {
+					 if(c[0][i]==0) {
+						// System.out.println(c1.contains(newnode)+" adding");
+						 c[0][i]=newnode;
+						 c1.add(newnode);
+						 
+					 break;}
+				 }
+				 n=1;
+			 }
+			
+		 //Creating temporary community
+		 for(int i=1;i<(node+1);i++) //since we have nodes beginning from 1
+		 {
+			 int p=0;//for checking node is present in a community or not
+			 if(c1.contains(i));
+			 else {
+				// System.out.println(i);
+				 for(int j=1;j<n;j++)
+				 {
+					 if(c[j][0]==0)break;
+					 for(int k=0;k<(node+1);k++)
+					 {
+						if(c[j][k]==0)break;//if nodes in the community is exhausted then go for next community
+						 if(flight[i][c[j][k]]!=0)
+						 {
+							// cLink[j]++;
+							 //System.out.println(j+ " "+cLink[j]+" "+ i);
+							 for(int l=0;l<(node+1);l++)
+							 {
+								// if(c[j][1]==0)cLink[j]++;
+								 if(c[j][l]==0)
+								 {
+									 c[j][l]=i;
+									// System.out.println(i);
+									 break;
+								 }
+							 }
+							/* ArrayList<Integer> al = new ArrayList<Integer>
+								(Arrays. asList(c[j][500]));
+							 al.add(i);
+							 c[j]=al.toArray(c[j]);*/
+							 p=1;
+						 }
+						 
+						if(p==1)	break; 
+					 }
+					
+					/*ArrayList<Integer> al = new ArrayList<Integer>
+					(Arrays. asList(c[j][500]));
+					if(al.contains(i))
+						p=1;*/
+					 if(p==1)break;
+				 }
+				 if(p==0)
+				 {
+					// System.out.println("in p=0 with n="+n+" and i="+i);
+				c[n][0]=i;
+					
+					/* ArrayList<Integer> al = new ArrayList<Integer>
+						(Arrays. asList(c[n]));
+					 al.add(i);
+					c[n]=al.toArray(c[n]);*/
+					 n++;
+					 
+					 //System.out.println(c[0][0]);
+				 }
+				 
+			 }
+			 
+		 }
+		 //for finding no. of links in each community
+		 for(int i=0;i<n;i++)
+			{
+			 int l=0;
+				for(int j=0;j<=node;j++)
+				{
+					for(int k=0;k<=node;k++)
+					{
+						if(flight[c[i][j]][c[i][k]]!=0)l++;
+						//System.out.print(c[i][j]+" "+c[i][k]+" "+flight[c[i][j]][c[i][k]]+" ");
+					}
+					
+				}
+				
+				cLink[i]=l/2;
+			}
+		//degree of each community
+		 for(int i=0;i<n;i++)
+		 {
+			
+			 for (int j=0;j<(node+1);j++)
+			 { if(c[i][j]==0)break;
+				 cDeg[i]+=deg[c[i][j]];
+			 
+			 }
+			 //System.out.println("deg of comm is "+cDeg[i]);
+		 }
+		 for(int i=0;i<n;i++)
+		 {
+			Float ls=cLink[i];
+			Float ds=cDeg[i];
+			//System.out.println("ls, ds and L of "+i+" is "+cLink[i]+" "+cDeg[i]+" "+Link );
+			 if(cLink[i]==0);
+			 else
+			 {
+				// System.out.println(ls+" ls"+ds+" ds");
+				// System.out.println(ls/Link+" calc "+ds/(2*Link));
+			 //System.out.println((ds/(2*Link))*(ds/(2*Link))+" asd");
+			 mod+=(ls/Link)-((ds/(2*Link))*(ds/(2*Link)));
+			//System.out.println("mod of "+i+" is "+mod);
+			 }
+		 }
+		// mod*=100;
+		 for(int i=0;i<n;i++)
+		 {
+			 System.out.println("Vertex(s) in community "+(i+1)+" is/are:");
+			 for (int j=0;j<(node+1);j++)
+			 { if(c[i][j]==0)break;
+				 System.out.print(c[i][j]+" ");
+			 
+			 }
+			 System.out.println("with no. of links="+cLink[i]);
+		 }
+		 System.out.println(mod+" is mod and "+prevmod+" is prevmode\n");
+		 }while(mod>prevmod);
+		 
+		 
+		
+		 
+		 
+			
+		 
+		 //System.out.println(n);
+		/* for(int i=0;i<n;i++)
+		 {
+			 System.out.println("Vertex(s) in community "+(i+1)+" is/are:");
+			 for (int j=0;j<(node+1);j++)
+			 { if(prevc[i][j]==0)break;
+				 System.out.print(prevc[i][j]+" ");
+			 
+			 }
+			 System.out.println("with no. of links="+prevLink[i]);
+		 }
+		
+		 System.out.println("mod "+prevmod);*/
+		}
+
+	}
